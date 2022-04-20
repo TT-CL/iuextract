@@ -82,13 +82,23 @@ def read_buffer(fileBuffer):
     return sents
 
 
-def read_filter(filename):
+def read_filter(file):
     ''' Simple reader for files containing filters '''
     # read file from disk
     lines = []
-    with open(filename) as file:
-        # Tokenize sentences
-        for row in file.readlines():
+    if isinstance(file, str):
+        # file is a path
+        with open(file) as f:
+            # Tokenize sentences
+            for row in f.readlines():
+                # Skip empty lines and start lines
+                cleaned_row = clean_str(row)
+                if cleaned_row != "" and cleaned_row != "start":
+                    lines.append(cleaned_row.lower())
+    else:
+        # file is a reader
+        s = file.decode("utf-8")
+        for row in s.split("\n"):
             # Skip empty lines and start lines
             cleaned_row = clean_str(row)
             if cleaned_row != "" and cleaned_row != "start":

@@ -3,12 +3,13 @@
 # from functools import cmp_to_key
 from collections import deque
 # from pprint import pprint
-# from src.iu_utils import iu_pprint
+# from .iu_utils import iu_pprint
 from .data import read_filter
 from spacy.tokens import Token
+import pkgutil
 
 # initialize the list of filtered IUs from an external file
-filter_file = "./src/iuextract/transition_signals.txt"
+filter_file = pkgutil.get_data(__name__,"transition_signals.txt")
 filtered_ius = read_filter(filter_file)
 
 # Spacy Token Extension for IU combinations
