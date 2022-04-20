@@ -11,7 +11,7 @@ import json
 import re
 import spacy
 from spacy.tokens import Doc, Token
-from src.iuextract.iu_utils import iu_pprint
+from .iu_utils import iu_pprint
 
 # Spacy Token Extension
 Token.set_extension("iu_index", default=-1, force=True)

@@ -4,7 +4,7 @@
 from collections import deque
 # from pprint import pprint
 # from src.iu_utils import iu_pprint
-from src.iuextract.data import read_filter
+from .data import read_filter
 from spacy.tokens import Token
 
 # initialize the list of filtered IUs from an external file
