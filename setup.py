@@ -11,11 +11,11 @@ setuptools.setup(
     description="Extract Idea Units from strings and files",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    #url="https://github.com/pypa/sampleproject",
+    url="https://github.com/TT-CL/iuextract",
     
-    #project_urls={
-    #    "Bug Tracker": "https://github.com/pypa/sampleproject/issues",
-    #},
+    project_urls={
+        "Bug Tracker": "https://github.com/TT-CL/iuextract/issues",
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
