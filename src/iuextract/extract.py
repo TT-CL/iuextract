@@ -97,7 +97,7 @@ def order_nodes_bfs_dict(nodelist):
         # generate the IU text
         iu_text = " ".join(t.text for t in node.subtree)
         # if the iu.lowercase is in the filtered list:
-        if iu_text.lower() in filtered_ius:
+        if iu_text.lower().strip(",.") in filtered_ius:
             # print("Filtering IU: {}".format(iu_text))
             order.remove(node_arr)
     order.reverse()  # the extraction order needs to be reversed
@@ -145,8 +145,6 @@ def is_complementizer(word):
                 res = True
                 break
     return res
-    # TODO:
-    # Maybe filter relcl that are too short (I want to buy something to drink)
 
 
 def find_PP_PC(sentence):
