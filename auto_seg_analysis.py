@@ -7,7 +7,9 @@ from utils.gold import *
 from utils.statistics import *
 
 #Import all unsegmented files
-work_dir = "./data/sample/"
+corpus_name = "L2WS2021"
+work_dir = "./data/{}/".format(corpus_name)
+out_dir = "./out/{}/".format(corpus_name)
 filenames, sourcenames = retrieve_filenames(
     namefile=work_dir + "names.txt", folder=work_dir+"base/")
 filenames.extend(sourcenames)
@@ -30,6 +32,8 @@ for file in source_files:
     label_ius(file)
     labelled.append(file)
     assign_gold_labels(file, gold_files[f_idx])
+    out_name = "{}{}".format(out_dir,filenames[f_idx].split("/")[-1])
+    export_labeled_ius(file, out_name)
     collections.append(gold_agreement(file))
     f_idx += 1
 

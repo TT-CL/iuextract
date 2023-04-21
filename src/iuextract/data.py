@@ -17,7 +17,7 @@ from .iu_utils import iu_pprint
 Token.set_extension("iu_index", default=-1, force=True)
 
 #from pathlib import Path
-nlp = spacy.load("en_core_web_sm")
+nlp = spacy.load("en_core_web_lg")
 # dep_parser = CoreNLPDependencyParser(url="http://localhost:9000")
 # gen_parser = CoreNLPParser(url="http://localhost:9000")
 acceptable_models = ["spacy", "corenlp_dep", "corenlp_ps"]
@@ -233,8 +233,8 @@ def gen_iu_collection(sentences, gold=False):
 
 
 def export_csv(table, filename):
-    with open(filename, 'w', newline='') as writerFile:
-        writer = csv.writer(writerFile, delimiter=';', quotechar='|')
+    with open(filename, 'w') as writerFile:
+        writer = csv.writer(writerFile, dialect="unix")
         for row in table:
             writer.writerow(row)
 
