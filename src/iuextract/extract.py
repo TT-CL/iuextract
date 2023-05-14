@@ -422,7 +422,7 @@ def find_long_PP(sent, tagged_nodes):
 
 def inline_fixes(sent):
     previous_label = None
-    attach_prev = [",", ".", ")", "!", "?"]
+    attach_prev = [",", ".", ")", "!", "?", ";"]
     for i in range(len(sent)):
         word = sent[i]
         # PUNCTUATION FIX
