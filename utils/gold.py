@@ -1,4 +1,4 @@
-# This file handles data operations for gold standard files.
+ # This file handles data operations for gold standard files.
 # It is a different file from data.py since I don't want to load gold related
 # functions in production
 # (I.e.: when segmenting raw text I can't lookup manual annotation)
