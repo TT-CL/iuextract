@@ -1,3 +1,6 @@
+import sys
+sys.path.append("..")
+
 from src.iuextract.data import *
 from src.iuextract.extract import label_ius
 from pprint import pprint
