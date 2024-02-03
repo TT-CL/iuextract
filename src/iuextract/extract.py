@@ -48,7 +48,7 @@ def label_ius(file, combination_array=None):
             inline_fixes(sentence)
         # print(iu_pprint(sentence))
         # print()
-        s_idx += 1
+        s_idx = s_idx + 1
     return None
 
 
@@ -530,7 +530,8 @@ def color_ius(sentence, to_process, s_idx, combination_label=None):
         label = "JOIN"
         if "JOIN" not in rule_labels:
             label = "{}-{}-{}".format(s_idx, iu_idx, ",".join(rule_labels))
-        iu_idx += 1
+
+        iu_idx = iu_idx + 1
         # color words according to Idea Unit following the order
         q = deque([node])
         while q:

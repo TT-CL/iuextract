@@ -9,10 +9,10 @@
 import csv
 import json
 import re
+import unicodedata as ud
 import spacy
 from spacy.tokens import Doc, Token
-from .iu_utils import iu_pprint
-
+from .utils.utils import iu_pprint
 # Spacy Token Extension
 Token.set_extension("iu_index", default=-1, force=True)
 
@@ -20,10 +20,13 @@ Token.set_extension("iu_index", default=-1, force=True)
 nlp = spacy.load("en_core_web_lg")
 # dep_parser = CoreNLPDependencyParser(url="http://localhost:9000")
 # gen_parser = CoreNLPParser(url="http://localhost:9000")
-acceptable_models = ["spacy", "corenlp_dep", "corenlp_ps"]
+ACCEPTABLE_MODELS = ["spacy", "corenlp_dep", "corenlp_ps"]
 
 def clean_str(s):
     ''' string cleanup function '''
+    #remove double spaces and newlines/tabs
+    space_undoubler = lambda s : re.sub(r'\s\s*',' ', s)
+
     res = s
     res = res.replace("\s\\t\s", " ")
     res = res.replace("\s\\n\s", " ")
@@ -34,7 +37,8 @@ def clean_str(s):
     res = res.replace("”", "\"")
     res = res.replace("``", "\"")
     res = res.replace("''", "\"")
-    res = re.sub("\s+", " ", res) # replace multiple spaces with a single one
+    res = space_undoubler(res)
+    #res = re.sub("\s+", " ", res) # replace multiple spaces with a single one
     # ensure that each open parens has at most one whitespace before
     res = re.sub("\s*\\(", " (", res)
     # ensure that each close parens has at most one whitespace afterwards
@@ -44,6 +48,12 @@ def clean_str(s):
     res = re.sub("\s*\\.", " .", res) 
     res = re.sub("\\.\s*", ". ", res)
     '''
+
+    #Remove weird unicode chars (emojis)
+    res = ''.join([c for c in res if ud.category(c)[0] != 'C'])
+    # undouble spaces again
+    res = space_undoubler(res)
+    #remove trailing spaces
     res = res.strip()
     return res
 
@@ -116,7 +126,7 @@ def parse_file(sents, input_models=["spacy"]):
     WARNING: Currently only spacy is supported
     '''
     # filter models with acceptable ones
-    models = [model for model in input_models if model in acceptable_models]
+    models = [model for model in input_models if model in ACCEPTABLE_MODELS]
     # instantiate a dict with each model as a key
     res = {}
     res["raw"] = sents  # add raw file as well

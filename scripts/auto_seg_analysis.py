@@ -5,14 +5,14 @@ from src.iuextract.data import *
 from src.iuextract.extract import label_ius
 from pprint import pprint
 from spacy import displacy
-from src.iuextract.iu_utils import iu_pprint
-from utils.gold import *
-from utils.statistics import *
+from src.iuextract.utils.utils import iu_pprint
+from src.iuextract.utils.gold import *
+from src.iuextract.utils.statistics import *
 
 #Import all unsegmented files
 corpus_name = "L2WS2021"
-work_dir = "./data/{}/".format(corpus_name)
-out_dir = "./out/{}/".format(corpus_name)
+work_dir = "../data/{}/".format(corpus_name)
+out_dir = "../out/{}/".format(corpus_name)
 filenames, sourcenames = retrieve_filenames(
     namefile=work_dir + "names.txt", folder=work_dir+"base/")
 filenames.extend(sourcenames)

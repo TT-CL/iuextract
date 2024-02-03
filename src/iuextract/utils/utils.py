@@ -13,7 +13,9 @@ def iu_pprint(sent, gold = False, opener="[",closer="]"):
     res = ""
     cur_idx = None
     for i in range(len(texts)):
+        #print("i:{}, indexes:{}, cur_idx:{}".format(i,indexes[i],cur_idx))
         if indexes[i] != cur_idx:
+            #print(indexes[i], cur_idx)
             cur_idx = indexes[i]
             res += closer+opener+"{}|".format(cur_idx)
         res += "{} ".format(texts[i])
@@ -36,3 +38,12 @@ def get_rule_combinations():
         rule_combinations.extend(combinations(available_rules, i+1))
     rule_combinations = [list(comb) for comb in rule_combinations]
     return rule_combinations
+
+def get_ius_text(sent):
+    res_dict = {}
+    for tok in sent:
+        if tok._.iu_index not in res_dict.keys():
+            res_dict[tok._.iu_index] = [tok]
+        else:
+            res_dict[tok._.iu_index].append(tok)
+    return res_dict

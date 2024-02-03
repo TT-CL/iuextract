@@ -14,7 +14,7 @@ import spacy
 from spacy.tokens import Token
 nlp = spacy.load("en_core_web_lg")
 import re
-from src.iuextract.iu_utils import iu_pprint
+from src.iuextract.utils.utils import iu_pprint
 # Spacy Token Extension
 Token.set_extension("gold_iu_index", default=-1, force=True)
 
@@ -100,6 +100,8 @@ def assign_gold_labels(sents, ius):
                 print("word: {} iu: {}".format(word.text,token.text))
                 print("token.i: {} token.doc: {}".format(word.i, word.doc))
                 print("sent_idx: {} token_idx: {}".format(sent_idx,token_idx))
+                print("sent: {}".format(sents[sent_idx]))
+                print("iu: {}".format(iu))
                 print("Please remain calm and call an adult")
                 print("-----------")
                 raise(Exception("gold"))

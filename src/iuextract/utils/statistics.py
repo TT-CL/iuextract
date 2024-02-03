@@ -158,7 +158,7 @@ def doc_agreement(doc1, doc2):
 def binary_agreement(bin_1, gold_bin):
     str_1 = bin_to_string(bin_1)
     str_2 = bin_to_string(gold_bin)
-    prec_rec_f1 = precision_recall_f1(bin=bin_1, gold_bin=gold_bin)
+    prec_rec_f1 = precision_recall_f1(auto_bin=bin_1, gold_bin=gold_bin)
     reliability_data = [bin_1, gold_bin]
     res = {}
     res["spans"] = sum(bin_1)+1
@@ -185,13 +185,14 @@ def binary_agreement(bin_1, gold_bin):
     return res
 
 def ius_to_binary(sentences, gold=False):
-    bin = []            #result binary container
+    binary = []            #result binary container
     prev_label = None    #previous label temp var
     # func to get iu_label.
     label = lambda x: x._.iu_index
     # look at a different label for gold Ius
     if gold is True:
         label = lambda x: x._.gold_iu_index
+    
     for sent in sentences:
         for word in sent:
             #iterate words
@@ -200,11 +201,11 @@ def ius_to_binary(sentences, gold=False):
                 prev_label = label(word)
             #add 1 if we change IU, 0 otherwise
             elif label(word) is prev_label:
-                bin.append(0)
+                binary.append(0)
             else:
                 prev_label = label(word)
-                bin.append(1)
-    return bin
+                binary.append(1)
+    return binary
 
 
 def comb_ius_to_binary(sentences, comb_label):
@@ -259,10 +260,10 @@ bin_to_string = lambda bin: ''.join(str(el) for el in bin)
 
 iu_to_string = lambda iu: [w.text for w in iu]
 
-def precision_recall_f1(bin=None, gold_bin=None):
-    if len(bin) != len(gold_bin):
+def precision_recall_f1(auto_bin=None, gold_bin=None):
+    if len(auto_bin) != len(gold_bin):
         raise Exception("Inconsistent binaries for Precision and recall")
-    sk_res = precision_recall_fscore_support(gold_bin, bin, beta=1)
+    sk_res = precision_recall_fscore_support(gold_bin, auto_bin, beta=1)
     res = {
         "precision": sk_res[0][1],
         "recall": sk_res[1][1],

@@ -5,24 +5,24 @@ from src.iuextract.data import *
 from src.iuextract.extract import label_ius
 from pprint import pprint
 from spacy import displacy
-from src.iuextract.iu_utils import iu_pprint
-from utils.gold import *
-from utils.statistics import *
+from src.iuextract.utils.utils import iu_pprint
+from src.iuextract.utils.gold import *
+from src.iuextract.utils.statistics import *
 from copy import deepcopy
 
 #Import all unsegmented files
 corpus_name = "L2WS2022/Napping and Learning"
-work_dir = "./data/{}/".format(corpus_name)
+work_dir = "../data/{}/".format(corpus_name)
 
 base_dir = work_dir + "base/"
 filenames, sourcenames = retrieve_filenames(
     namefile=work_dir + "names.txt", folder=base_dir)
 filenames.extend(sourcenames)
 models = ["spacy"]
-files = import_all_files(filenames, models)
-
-filesA = deepcopy(files)
-filesB = deepcopy(files)
+filesA = import_all_files(filenames, models)
+filesB = import_all_files(filenames, models)
+#filesA = deepcopy(files)
+#filesB = deepcopy(files)
 
 # import import gold labels
 filesA_dir = work_dir+"rater1/"
