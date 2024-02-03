@@ -9,7 +9,9 @@ In here you will find functions to label Spacy Docs with IU information
 from collections import deque
 # from pprint import pprint
 from .data import __read_filter
-from spacy.tokens import Token
+from .utils import gen_iu_collection, get_iu_str_list
+import spacy
+from spacy.tokens import Token, Doc
 import pkgutil
 
 # initialize the list of filtered IUs from an external file
@@ -21,9 +23,30 @@ Token.set_extension("iu_comb", default={}, force=True)
 
 available_rules = ["R1", "R2", "R3", "R5", "R6", "R8", "R10"]
 
+def segment_ius(text, mode = "obj", rule_list=None, spacy_model = 'en_core_web_lg'):
+    '''
+    Function to segment a text into a list of IUs
+    
+    :param file: (List(Span)) a file parsed with spacy
+    :param mode: what kind of result you wish to obtain. Accepted modes: 'obj', 'str'
+    :param rule_list: (List(str)) an optional parameter, you can filter the IU extraction rules by providing an array with a list of rules you wish to use. Default: None
+    :param spacy_model: (str) the spacy model to load. Default: en_core_web_lg
+
+    :return: either an IU collection or a str representation of an IU collection
+    '''
+    nlp = spacy.load(spacy_model)
+    parsed = nlp(text)
+    label_ius(parsed, rule_list)
+    res = None
+    if mode == "obj":
+        res = gen_iu_collection(parsed)
+    elif mode == "str":
+        res = get_iu_str_list(parsed)
+    return res
+
 def label_ius(file, rule_list=None):
     '''
-    Wrapper iu extraction function.
+    Function to label a Spacy object with the IUs
     
     :param file: (List(Span)) a file parsed with spacy
     :param rule_list: (List(str)) an optional parameter, you can filter the IU extraction rules by providing an array with a list of rules you wish to use. Default: None
@@ -31,8 +54,12 @@ def label_ius(file, rule_list=None):
     No output is expected, as the Idea Units labels will be stored inside
     the spacy tokens
     '''
+    sents = file
+    if isinstance(file, Doc):
+        sents = file.sents
+
     s_idx = 0
-    for sentence in file:
+    for sentence in sents:
         root = sentence[0].sent.root
         # print("**Sentence:\n{}".format(sentence))
         # print("*root: {}, POS: {}".format(root.text,root.pos_))
