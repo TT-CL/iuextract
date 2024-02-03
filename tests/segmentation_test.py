@@ -8,6 +8,9 @@ from spacy import displacy
 from src.iuextract.utils import iu2str
 from src.iuextract.gold import *
 from utils.statistics import *
+import spacy
+
+nlp = spacy.load("en_core_web_lg")
 
 # Import all unsegmented files
 work_dir = "../data/sample/"
@@ -15,13 +18,13 @@ filenames, sourcenames = retrieve_filenames(
     namefile=work_dir + "names.txt",folder=work_dir + "base/")
 filenames.extend(sourcenames)
 models = ["spacy"]
-files = import_all_files(filenames, models)
+files = import_all_files(filenames, nlp, models)
 
 # import import goldfiles
 goldnames, goldsourcenames = retrieve_filenames(
     namefile=work_dir+"names.txt",folder=work_dir+"gold/")
 goldnames.extend(goldsourcenames)
-gold_files = import_all_gold_files(goldnames)
+gold_files = import_all_gold_files(goldnames, nlp)
 
 # use list comprehension to generate an iterator
 source_files = [file['spacy'] for file in files]

@@ -10,6 +10,10 @@ from src.iuextract.gold import *
 from utils.statistics import *
 from copy import deepcopy
 
+import spacy
+
+nlp = spacy.load("en_core_web_lg")
+
 #Import all unsegmented files
 corpus_name = "L2WS2022/Napping and Learning"
 work_dir = "../data/{}/".format(corpus_name)
@@ -19,8 +23,8 @@ filenames, sourcenames = retrieve_filenames(
     namefile=work_dir + "names.txt", folder=base_dir)
 filenames.extend(sourcenames)
 models = ["spacy"]
-filesA = import_all_files(filenames, models)
-filesB = import_all_files(filenames, models)
+filesA = import_all_files(filenames, nlp, models)
+filesB = import_all_files(filenames, nlp, models)
 #filesA = deepcopy(files)
 #filesB = deepcopy(files)
 
@@ -33,8 +37,8 @@ goldnamesA.extend(goldsourcenames)
 goldnamesB, goldsourcenames = retrieve_filenames(
     namefile=work_dir + "names.txt", folder=filesB_dir)
 goldnamesB.extend(goldsourcenames)
-gold_filesA = import_all_gold_files(goldnamesA)
-gold_filesB = import_all_gold_files(goldnamesB)
+gold_filesA = import_all_gold_files(goldnamesA, nlp)
+gold_filesB = import_all_gold_files(goldnamesB, nlp)
 # use list comprehension to generate an iterator
 source_filesA = [file['spacy'] for file in filesA]
 source_filesB = [file['spacy'] for file in filesB]

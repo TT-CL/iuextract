@@ -10,20 +10,18 @@ IU segmentation is handled by the extract module.
 
 import csv
 import json
-import spacy
 from spacy.tokens import Doc, Token
 from .utils import iu2str, clean_str
 # Spacy Token Extension
 Token.set_extension("iu_index", default=-1, force=True)
 
 #from pathlib import Path
-nlp = spacy.load("en_core_web_lg")
 # dep_parser = CoreNLPDependencyParser(url="http://localhost:9000")
 # gen_parser = CoreNLPParser(url="http://localhost:9000")
 ACCEPTABLE_MODELS = ["spacy", "corenlp_dep", "corenlp_ps"]
 
 
-def __read_file(filename):
+def __read_file(filename, nlp):
     ''' Simple file reader. Output is list of sentences '''
     # read file from disk
     lines = []
@@ -39,7 +37,7 @@ def __read_file(filename):
     return sents
 
 
-def __read_buffer(fileBuffer):
+def __read_buffer(fileBuffer, nlp):
     ''' Simple buffer reader. Output is a list of sentences '''
     # read file from disk
     lines = []
@@ -81,7 +79,7 @@ def __read_filter(file):
     return lines
 
 
-def __parse_file(sents, input_models=["spacy"]):
+def __parse_file(sents, nlp, input_models=["spacy"]):
     '''
     File parser
     Accepted models:
@@ -114,21 +112,22 @@ def __parse_file(sents, input_models=["spacy"]):
     return res
 
 
-def import_file(f, models=["spacy"]):
+def import_file(f, nlp, models=["spacy"]):
     '''
     Wrapper AIO function to import a file.
     It will read from disk, perform cleanup and parse
 
     :param f: (str) the file URI
+    :param nlp: the spacy nlp model
     :param models: a list of dependency parse models to use. Currently only spacy is supported
     :return: (List[Span]) a list of spacy sents
     '''
     raws = None
     if isinstance(f, str):
-        raws = __read_file(f)
+        raws = __read_file(f, nlp)
     else:
-        raws = __read_buffer(f)
-    file = __parse_file(raws, models)
+        raws = __read_buffer(f, nlp)
+    file = __parse_file(raws, nlp, models)
     return file
 
 
@@ -170,18 +169,19 @@ def retrieve_filenames(namefile, folder):
     return names, sources
 
 
-def import_all_files(filenames, models=None):
+def import_all_files(filenames, nlp, models=None):
     '''
     Wrapper function that imports, cleans and parses all the files at once
 
     :param filenames: (List[str]) a list containing the files URIs
+    :param nlp: the spacy nlp model
     :param models: a list of dependency parse models to use. Currently only spacy is supported
     :return: (List[List[Span]]) a list of spacy sents for each document
     '''
     files = []
     for filename in filenames:
         try:
-            files.append(import_file(filename, models))
+            files.append(import_file(filename, nlp, models))
         except Exception:
             print("{} not found. Skipping...".format(filename))
     return files
@@ -249,7 +249,7 @@ def __prepare_json(text, doc_name, doc_type):
     return data
 
 
-def __prepare_man_seg_json(text):
+def __prepare_man_seg_json(text, nlp):
     seg = text
     if not isinstance(text, Doc):
         seg = nlp(clean_str(seg))
@@ -270,7 +270,7 @@ def __prepare_man_seg_json(text):
     return sent_data
 
 
-def __prepare_man_segs_json(segs, doc_name, doc_type):
+def __prepare_man_segs_json(segs, doc_name, doc_type, nlp):
     data = {}
     data['doc_name'] = doc_name
     data['doc_type'] = doc_type
@@ -321,12 +321,12 @@ def export_labeled_json(text, filename, doc_name):
 
 ### This function assignes IU labels to the sents read by data.py
 #UNTESTED
-def __read_manual_annotation(filename):
+def __read_manual_annotation(filename, nlp):
     raws = None
     if isinstance(filename, str):
-        raws = __read_file(filename)
+        raws = __read_file(filename, nlp)
     else:
-        raws = __read_buffer(filename)
+        raws = __read_buffer(filename, nlp)
     file = __parse_file(raws, ['spacy'])
 
     

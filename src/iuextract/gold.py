@@ -10,9 +10,7 @@ This is because I want dependency trees to be evaluated on full sentences and
 not single Idea Units.
 '''
 
-import spacy
 from spacy.tokens import Token
-nlp = spacy.load("en_core_web_lg")
 import re
 from src.iuextract.utils import iu2str, clean_str
 # Spacy Token Extension
@@ -27,11 +25,12 @@ def __split_index_iu(sent):
         return (match[1],match[2])
     return (None, sent)
 
-def import_gold(filename):
+def import_gold(filename, nlp):
     '''
     This function imports the gold file and returns a matrix
     
     :param filename: (str) the gold file URI
+    :param nlp: the spacy nlp model
     :return: (List[str, Doc]) A matrix where the first column will have the discontinuous IU index and the second column will have the spacy formatted idea unit
     '''
     res = []
@@ -45,17 +44,18 @@ def import_gold(filename):
                 res.append([disc_index, nlp(raw_iu.strip())])
     return res
 
-def import_all_gold_files(filenames):
+def import_all_gold_files(filenames, nlp):
     '''
     Wrapper function to import all goldfiles at once
     
     :param filenames: (List[str]) the list of gold file URIs
+    :param nlp: the spacy nlp model
     :return: (List[List[str, Doc]]) A list of matrixes. In each matrix, the first column will have the discontinuous IU index and the second column will have the spacy formatted idea unit
     '''
     files = []
     for filename in filenames:
         try:
-            files.append(import_gold(filename))
+            files.append(import_gold(filename, nlp))
         except:
             print("{} not found. Skipping...".format(filename))
     return files

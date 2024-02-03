@@ -9,6 +9,9 @@ from src.iuextract.utils import iu2str
 from src.iuextract.gold import *
 from utils.statistics import *
 
+import spacy
+nlp = spacy.load("en_core_web_lg")
+
 #Import all unsegmented files
 corpus_name = "L2WS2021"
 work_dir = "../data/{}/".format(corpus_name)
@@ -17,14 +20,14 @@ filenames, sourcenames = retrieve_filenames(
     namefile=work_dir + "names.txt", folder=work_dir+"base/")
 filenames.extend(sourcenames)
 models = ["spacy"]
-files = import_all_files(filenames, models)
+files = import_all_files(filenames, nlp, models)
 
 # import import goldfiles
 gold_dir = work_dir+"gold/"
 goldnames, goldsourcenames = retrieve_filenames(
     namefile=work_dir + "names.txt", folder=gold_dir)
 goldnames.extend(goldsourcenames)
-gold_files = import_all_gold_files(goldnames)
+gold_files = import_all_gold_files(goldnames, nlp)
 # use list comprehension to generate an iterator
 source_files = [file['spacy'] for file in files]
 f_idx = 0
