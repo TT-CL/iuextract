@@ -1,9 +1,13 @@
+'''
+Main iuextract module
+In here you will find functions to label Spacy Docs with IU information
+'''
+
 # import re
 # from itertools import combinations
 # from functools import cmp_to_key
 from collections import deque
 # from pprint import pprint
-# from .iu_utils import iu_pprint
 from .data import __read_filter
 from spacy.tokens import Token
 import pkgutil
@@ -17,10 +21,13 @@ Token.set_extension("iu_comb", default={}, force=True)
 
 available_rules = ["R1", "R2", "R3", "R5", "R6", "R8", "R10"]
 
-def label_ius(file, combination_array=None):
+def label_ius(file, rule_list=None):
     '''
     Wrapper iu extraction function.
-    In input it expects a file parsed with spacy
+    
+    :param file: (List(Span)) a file parsed with spacy
+    :param rule_list: (List(str)) an optional parameter, you can filter the IU extraction rules by providing an array with a list of rules you wish to use. Default: None
+
     No output is expected, as the Idea Units labels will be stored inside
     the spacy tokens
     '''
@@ -30,7 +37,7 @@ def label_ius(file, combination_array=None):
         # print("**Sentence:\n{}".format(sentence))
         # print("*root: {}, POS: {}".format(root.text,root.pos_))
 
-        to_process = __tag_nodes(sentence, combination_array=None)
+        to_process = __tag_nodes(sentence, combination_array=rule_list)
         if len(to_process) == 0:
             # no rule is applicable, segment the full sentence.
             # print("No rule applicable to sent:\n\t{}".format(sentence))
@@ -38,15 +45,15 @@ def label_ius(file, combination_array=None):
         to_process = __order_nodes_bfs_dict(to_process)
 
         combination_label = None
-        if combination_array is not None:
-            combination_label = "_".join(combination_array)
+        if rule_list is not None:
+            combination_label = "_".join(rule_list)
 
         __color_ius(sentence, to_process, s_idx, combination_label)
 
         #Rule 10
-        if combination_array is None or "R10" in combination_array:
+        if rule_list is None or "R10" in rule_list:
             __inline_fixes(sentence)
-        # print(iu_pprint(sentence))
+        # print(iu2str(sentence))
         # print()
         s_idx = s_idx + 1
     return None

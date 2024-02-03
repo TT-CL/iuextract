@@ -1,10 +1,12 @@
-# This file handles data operations:
-# * reading from disk,
-# * string cleanup,
-# * tokenization,
-# * 3rd party parsing (stanford corenlp, spacy)
-# The objective is to create a single function that preformats data
-# This data will later be segmented in Idea Units
+'''
+This modle handles data I/O operations:
+* reading from disk,
+* string cleanup,
+* tokenization,
+* 3rd party parsing (spacy)
+The data is only read from disk and cleaned up.
+IU segmentation is handled by the extract module.
+'''
 
 import csv
 import json
@@ -12,7 +14,7 @@ import re
 import unicodedata as ud
 import spacy
 from spacy.tokens import Doc, Token
-from .utils import iu_pprint
+from .utils import iu2str
 # Spacy Token Extension
 Token.set_extension("iu_index", default=-1, force=True)
 
@@ -22,8 +24,14 @@ nlp = spacy.load("en_core_web_lg")
 # gen_parser = CoreNLPParser(url="http://localhost:9000")
 ACCEPTABLE_MODELS = ["spacy", "corenlp_dep", "corenlp_ps"]
 
-def __clean_str(s):
-    ''' string cleanup function '''
+def clean_str(s):
+    ''' 
+    String cleanup function
+    Removes double-spaces, makes apostrophe consistent and removes emojis
+
+    :param s: (str) the string to clean up
+    :return: (str) the cleaned up string
+    '''
     #remove double spaces and newlines/tabs
     space_undoubler = lambda s : re.sub(r'\s\s*',' ', s)
 
@@ -66,7 +74,7 @@ def __read_file(filename):
         # Tokenize sentences
         for row in file.readlines():
             # Skip empty lines and start lines
-            cleaned_row = __clean_str(row)
+            cleaned_row = clean_str(row)
             if cleaned_row != "" and cleaned_row != "start":
                 lines.append(cleaned_row)
     joined_lines = " ".join(lines)
@@ -83,7 +91,7 @@ def __read_buffer(fileBuffer):
     # Tokenize sentences
     for row in decodedString.splitlines():
         # Skip empty lines and start lines
-        cleaned_row = __clean_str(row)
+        cleaned_row = clean_str(row)
         if cleaned_row != "" and cleaned_row != "start":
             lines.append(cleaned_row)
     fileBuffer.close()
@@ -102,7 +110,7 @@ def __read_filter(file):
             # Tokenize sentences
             for row in f.readlines():
                 # Skip empty lines and start lines
-                cleaned_row = __clean_str(row)
+                cleaned_row = clean_str(row)
                 if cleaned_row != "" and cleaned_row != "start":
                     lines.append(cleaned_row.lower())
     else:
@@ -110,7 +118,7 @@ def __read_filter(file):
         s = file.decode("utf-8")
         for row in s.split("\n"):
             # Skip empty lines and start lines
-            cleaned_row = __clean_str(row)
+            cleaned_row = clean_str(row)
             if cleaned_row != "" and cleaned_row != "start":
                 lines.append(cleaned_row.lower())
     return lines
@@ -153,8 +161,10 @@ def import_file(f, models=["spacy"]):
     '''
     Wrapper AIO function to import a file.
     It will read from disk, perform cleanup and parse
-    The @models argument accepts a list containing the parse models that 
-    the user wishes to adopt
+
+    :param f: (str) the file URI
+    :param models: a list of dependency parse models to use. Currently only spacy is supported
+    :return: (List[Span]) a list of spacy sents
     '''
     raws = None
     if isinstance(f, str):
@@ -167,9 +177,22 @@ def import_file(f, models=["spacy"]):
 
 def retrieve_filenames(namefile, folder):
     '''
-    This function retrieves all the filenames listed in ./data/names.txt
-    this is to allow flexibility with the amount of files and avoid uploading
+    This function retrieves all the filenames listed in a support file.
+    This is to allow flexibility with the amount of files and avoid uploading
     sensitive data (like filenames) on VCS
+
+    Namefile specification:
+    Each line of a namefile should contain the name of a document in a corpus.
+    Source texts should be prepended by #.
+
+    Example:
+    file1.txt
+    file2.txt
+    #source.txt
+
+    :param namefile: (str) the URI of the namefile
+    :param folder: (str) the corpus directory. The files in the namefiles will be prepended with this directory parameter.
+    :return: (List[str], List[str]) a tuple, 1. list of corpus filenames, 2. list of filenames for source texts
     '''
     names = []
     sources = []
@@ -193,8 +216,10 @@ def retrieve_filenames(namefile, folder):
 def import_all_files(filenames, models=None):
     '''
     Wrapper function that imports, cleans and parses all the files at once
-    The @models argument accepts a list containing the parse models that
-    the user wishes to adopt
+
+    :param filenames: (List[str]) a list containing the files URIs
+    :param models: a list of dependency parse models to use. Currently only spacy is supported
+    :return: (List[List[Span]]) a list of spacy sents for each document
     '''
     files = []
     for filename in filenames:
@@ -211,7 +236,13 @@ def export_csv(table, filename):
             writer.writerow(row)
 
 def export_labeled_ius(text, filename):
-    raw_sents = [iu_pprint(sent, opener="", closer="\n") for sent in text]
+    '''
+    Function to export the string representation of the IUs in a text
+
+    :param text: (Span) the text to export (must be in spacy format and parsed)
+    :param filename: the output file
+    '''
+    raw_sents = [iu2str(sent, opener="", closer="\n") for sent in text]
     raw = "".join(raw_sents)
     with open(filename, 'w') as file:
         file.write(raw)
@@ -264,7 +295,7 @@ def __prepare_json(text, doc_name, doc_type):
 def __prepare_man_seg_json(text):
     seg = text
     if not isinstance(text, Doc):
-        seg = nlp(__clean_str(seg))
+        seg = nlp(clean_str(seg))
 
     word_index = 0
     sent_data = {}
@@ -293,7 +324,7 @@ def __prepare_man_segs_json(segs, doc_name, doc_type):
 
     for seg in segs:
         if not isinstance(seg, Doc):
-            seg = nlp(__clean_str(seg))
+            seg = nlp(clean_str(seg))
         sent_data = {}
         sent_data['words'] = []
         for token in seg:
@@ -315,6 +346,13 @@ def __prepare_man_segs_json(segs, doc_name, doc_type):
     return data
 
 def export_labeled_json(text, filename, doc_name):
+    '''
+    Export a parsed document into json format
+
+    :param text: (Span) the document to export (must be in spacy format and parsed)
+    :param filename: the output file
+    :doc_name: the name of the original document. Pass "source" for source texts
+    '''
 
     doc_type = "Source text"
     if doc_name != "source":

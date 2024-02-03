@@ -1,19 +1,21 @@
- # This file handles data operations for gold standard files.
-# It is a different file from data.py since I don't want to load gold related
-# functions in production
-# (I.e.: when segmenting raw text I can't lookup manual annotation)
-#
-# Gold data is used to label the parsed data structure from data.py
-# A custom iu_index field will be added to each token from data.py.
-# This is because I want dependency trees to be evaluated on full sentences and
-# not single Idea Units.
+'''
+This module handles data operations for gold standard files.
+It is a different file from data.py since I don't want to load gold related
+functions in production
+(I.e.: when segmenting raw text I can't lookup manual annotation)
 
-from src.iuextract.data import import_file, __clean_str
+Gold data is used to label the parsed data structure from data.py
+A custom iu_index field will be added to each token from data.py.
+This is because I want dependency trees to be evaluated on full sentences and
+not single Idea Units.
+'''
+
+from src.iuextract.data import import_file, clean_str
 import spacy
 from spacy.tokens import Token
 nlp = spacy.load("en_core_web_lg")
 import re
-from src.iuextract.utils import iu_pprint
+from src.iuextract.utils import iu2str
 # Spacy Token Extension
 Token.set_extension("gold_iu_index", default=-1, force=True)
 
@@ -26,23 +28,31 @@ def __split_index_iu(sent):
         return (match[1],match[2])
     return (None, sent)
 
-### this function imports the gold file and returns a matrix
-### the first column will have the discontinuous IU index
-### the second column will have the spacy formatted idea unit
 def import_gold(filename):
+    '''
+    This function imports the gold file and returns a matrix
+    
+    :param filename: (str) the gold file URI
+    :return: (List[str, Doc]) A matrix where the first column will have the discontinuous IU index and the second column will have the spacy formatted idea unit
+    '''
     res = []
     with open(filename) as goldFile:
         reader = goldFile.readlines()
         for row in reader:
-            cleaned_row = __clean_str(row)
+            cleaned_row = clean_str(row)
             ## skipping empty lines
             if cleaned_row != "" and cleaned_row != "start":
                 disc_index, raw_iu = __split_index_iu(cleaned_row)
                 res.append([disc_index, nlp(raw_iu.strip())])
     return res
 
-### Wrapper function to import all goldfiles at once
 def import_all_gold_files(filenames):
+    '''
+    Wrapper function to import all goldfiles at once
+    
+    :param filenames: (List[str]) the list of gold file URIs
+    :return: (List[List[str, Doc]]) A list of matrixes. In each matrix, the first column will have the discontinuous IU index and the second column will have the spacy formatted idea unit
+    '''
     files = []
     for filename in filenames:
         try:
@@ -51,8 +61,15 @@ def import_all_gold_files(filenames):
             print("{} not found. Skipping...".format(filename))
     return files
 
-### This function assignes gold IU labels to the sents read by data.py
+### 
 def assign_gold_labels(sents, ius):
+    '''
+    This function assignes gold IU labels to the sents read by data.py
+    
+    :param sents: (List[Span]) the list of spacy spans
+    :param ius: (List[str]) the list of unparsed gold ius
+    :return sents, disc_iu_set: (List[Span], set(str)) A tuple with 1. the spacy spans labeled with the gold information, 2. a set of discontinuous units indexes
+    '''
     gold_iu_index = 0 #gold iu index
     disc_dict = {} #dictionary for disc ius indexes
     sent_idx = 0 #raw sents index

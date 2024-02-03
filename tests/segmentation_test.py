@@ -5,7 +5,7 @@ from src.iuextract.data import *
 from src.iuextract.extract import label_ius
 from pprint import pprint
 from spacy import displacy
-from src.iuextract.utils import iu_pprint
+from src.iuextract.utils import iu2str
 from src.iuextract.gold import *
 from utils.statistics import *
 
