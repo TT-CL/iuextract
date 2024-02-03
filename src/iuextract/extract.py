@@ -4,13 +4,13 @@
 from collections import deque
 # from pprint import pprint
 # from .iu_utils import iu_pprint
-from .data import read_filter
+from .data import __read_filter
 from spacy.tokens import Token
 import pkgutil
 
 # initialize the list of filtered IUs from an external file
 filter_file = pkgutil.get_data(__name__,"transition_signals.txt")
-filtered_ius = read_filter(filter_file)
+filtered_ius = __read_filter(filter_file)
 
 # Spacy Token Extension for IU combinations
 Token.set_extension("iu_comb", default={}, force=True)
@@ -30,22 +30,22 @@ def label_ius(file, combination_array=None):
         # print("**Sentence:\n{}".format(sentence))
         # print("*root: {}, POS: {}".format(root.text,root.pos_))
 
-        to_process = tag_nodes(sentence, combination_array=None)
+        to_process = __tag_nodes(sentence, combination_array=None)
         if len(to_process) == 0:
             # no rule is applicable, segment the full sentence.
             # print("No rule applicable to sent:\n\t{}".format(sentence))
             to_process[root] = ["UNL"]
-        to_process = order_nodes_bfs_dict(to_process)
+        to_process = __order_nodes_bfs_dict(to_process)
 
         combination_label = None
         if combination_array is not None:
             combination_label = "_".join(combination_array)
 
-        color_ius(sentence, to_process, s_idx, combination_label)
+        __color_ius(sentence, to_process, s_idx, combination_label)
 
         #Rule 10
         if combination_array is None or "R10" in combination_array:
-            inline_fixes(sentence)
+            __inline_fixes(sentence)
         # print(iu_pprint(sentence))
         # print()
         s_idx = s_idx + 1
@@ -55,7 +55,7 @@ def label_ius(file, combination_array=None):
 subj = ["nsubj", "nsubjpass", "csubj", "csubjpass"]
 
 
-def is_V_with_S(word):
+def __is_V_with_S(word):
     '''
     this function says if rule 1 is applyable to word and all its dependants
     '''
@@ -72,7 +72,7 @@ def is_V_with_S(word):
     return res
 
 
-def order_nodes_bfs_dict(nodelist):
+def __order_nodes_bfs_dict(nodelist):
     '''
     compute a bfs to find the extraction order of nodes
     '''
@@ -119,7 +119,7 @@ def is_relcl(word):
 '''
 
 
-def is_sconj(word):
+def __is_sconj(word):
     ''' bool function for Rule 2 '''
     res = False
     # the sub conjunction is the introducion of a prepositional phrase
@@ -134,7 +134,7 @@ def is_sconj(word):
     return res
 
 
-def is_complementizer(word):
+def __is_complementizer(word):
     ''' Rule 2B '''
     res = False
     # enter the loop only if we have a clausal complement
@@ -147,7 +147,7 @@ def is_complementizer(word):
     return res
 
 
-def find_PP_PC(sentence):
+def __find_PP_PC(sentence):
     '''
     This function finds all Prepositional phrases as Prepositional complements
     It will return all prepostional modifiers
@@ -164,14 +164,14 @@ def find_PP_PC(sentence):
     return preps
 
 
-def rule_PP(sentence, s_idx):
+def __rule_PP(sentence, s_idx):
     # Prepositional phrases as Prepositional complements are phrases
     # formed by a preposition directly followed by a Prepositional complement
     # I suggest using this instead of the arbitrary 5 word limit
     return None
 
 
-def is_isolated(sequence):
+def __is_isolated(sequence):
     '''
     This function evaluates whether a sequence of words is isolated.
     A sequence is isolated if I only have an arc between it and the rest of the
@@ -190,7 +190,7 @@ def is_isolated(sequence):
     return outside_connections == 1
 
 
-def find_seq_head(sequence):
+def __find_seq_head(sequence):
     ''' given a sequence, returns the head of the subtree '''
     node = sequence[0]
     root = node.sent.root
@@ -207,7 +207,7 @@ def find_seq_head(sequence):
     return node
 
 
-def citation_check(node):
+def __citation_check(node):
     res = False
     if node.text.isdigit():
         # the word is a digit and only child of the appos
@@ -217,7 +217,7 @@ def citation_check(node):
     return res
 
 
-def stopword_check(node):
+def __stopword_check(node):
     res = False
     # print("node: {}".format(node))
     # print("is_stop: {}".format(node.is_stop))
@@ -225,11 +225,11 @@ def stopword_check(node):
     if node.is_stop or node.pos_ == "PUNCT":
         res = True
         for child in node.children:
-            res = res and stopword_check(child)
+            res = res and __stopword_check(child)
     return res
 
 
-def tag_parens(sentence):
+def __tag_parens(sentence):
     tag_list = []
     q = []
     word_idx = 0
@@ -250,9 +250,9 @@ def tag_parens(sentence):
                 seg_slice = sentence[open_idx+1:word_idx]
                 # CHECK IF THIS SEGMENT OF TEXT IS ISOLATED
                 # FROM THE REST OF THE SENT
-                if is_isolated(seg_slice):
-                    slice_head = find_seq_head(seg_slice)
-                    if citation_check(slice_head):
+                if __is_isolated(seg_slice):
+                    slice_head = __find_seq_head(seg_slice)
+                    if __citation_check(slice_head):
                         # print("R3parens - filtered due to citation")
                         pass
                     else:
@@ -261,7 +261,7 @@ def tag_parens(sentence):
     return tag_list
 
 
-def tag_hyphens(sentence):
+def __tag_hyphens(sentence):
     tag_list = []
     q = []
     word_idx = 0
@@ -273,9 +273,9 @@ def tag_hyphens(sentence):
             else:
                 prev_idx = q[len(q)-1]
                 seg_slice = sentence[prev_idx+1:word_idx]
-                if is_isolated(seg_slice):
-                    slice_head = find_seq_head(seg_slice)
-                    if citation_check(slice_head):
+                if __is_isolated(seg_slice):
+                    slice_head = __find_seq_head(seg_slice)
+                    if __citation_check(slice_head):
                         # print("R3hypen - filtered due to citation")
                         pass
                     else:
@@ -287,7 +287,7 @@ def tag_hyphens(sentence):
     return tag_list
 
 
-def tag_commas(sentence):
+def __tag_commas(sentence):
     tag_list = []
     q = []
     word_idx = 0
@@ -310,14 +310,14 @@ def tag_commas(sentence):
             # The comma will tell me where to attach the stopword IU.
             seg_slice = sentence[prev_idx+1:word_idx]
             # print("analyzing slice \"{}\"".format(slice))
-            if is_isolated(seg_slice):
-                slice_head = find_seq_head(seg_slice)
+            if __is_isolated(seg_slice):
+                slice_head = __find_seq_head(seg_slice)
                 # RULE 3 EXCEPTIONS
-                if citation_check(slice_head):
+                if __citation_check(slice_head):
                     # print("R3comma - filtered due to citation")
                     # print("--- {} ---".format(slice))
                     pass
-                elif stopword_check(slice_head):
+                elif __stopword_check(slice_head):
                     # print("R3B - filtered due to stopword_check")
                     # print("--- {} ---".format(slice))
                     tag_list.append([slice_head, "JOIN"])
@@ -331,7 +331,7 @@ def tag_commas(sentence):
     return tag_list
 
 
-def is_infinive_clause(word):
+def __is_infinive_clause(word):
     ''' rule 5 and 6 '''
     res = False
     if word.dep_ == "acl" or word.dep_ == "advcl":
@@ -346,12 +346,12 @@ def is_infinive_clause(word):
     return res
 
 
-def is_appos(word):
+def __is_appos(word):
     ''' boolean form of rule 7b '''
     res = False
     if word.dep_ == "appos":
         # check if the apposition is a citation:
-        if citation_check(word):
+        if __citation_check(word):
             # Citation!
             # print("R3.2 - filtered due to citation")
             pass
@@ -360,7 +360,7 @@ def is_appos(word):
     return res
 
 
-def is_infinitive_verbal(word):
+def __is_infinitive_verbal(word):
     ''' boolean for rule 7c '''
     res = False
     # a verb is infinitive
@@ -387,7 +387,7 @@ def is_infinitive_verbal(word):
     return res
 
 
-def find_long_PP(sent, tagged_nodes):
+def __find_long_PP(sent, tagged_nodes):
     def add_node(word, rule):
         if word not in tagged_nodes.keys():
             tagged_nodes[word] = [rule]
@@ -420,7 +420,7 @@ def find_long_PP(sent, tagged_nodes):
     return tagged_nodes
 
 
-def inline_fixes(sent):
+def __inline_fixes(sent):
     previous_label = None
     attach_prev = [",", ".", ")", "!", "?", ";"]
     for i in range(len(sent)):
@@ -461,7 +461,7 @@ def inline_fixes(sent):
     return None
 
 
-def tag_nodes(sentence, combination_array=None):
+def __tag_nodes(sentence, combination_array=None):
     '''
     This function tags all nodes that (along with their dependencies)
     need to be segmented.
@@ -478,49 +478,49 @@ def tag_nodes(sentence, combination_array=None):
             res[word].append(rule)
     for word in sentence:
         if "R1" in combination_array:
-            if is_V_with_S(word):
+            if __is_V_with_S(word):
                 add_node(word, "R1")
                 # print("V with S: {}".format(word))
         if "R2" in combination_array:
-            if is_sconj(word):
+            if __is_sconj(word):
                 add_node(word, "R2")
                 # print("sconj: {}".format(word))
-            if is_complementizer(word):
+            if __is_complementizer(word):
                 add_node(word, "R2")
                 # print("complementizer: {}".format(word))
         if "R3" in combination_array:
-            if is_appos(word):
+            if __is_appos(word):
                 add_node(word, "R3.2")
                 # print("appos: {}".format(word))
         if "R5" in combination_array:
-            if is_infinive_clause(word):
+            if __is_infinive_clause(word):
                 add_node(word, "R5")
                 # print("acl: {}".format(word))
         if "R6" in combination_array:
-            if is_infinitive_verbal(word):
+            if __is_infinitive_verbal(word):
                 add_node(word, "R6.2")
                 # print("verbal: {}".format(word))
     # Rule 3
     if "R3" in combination_array:
-        for tag in tag_parens(sentence):
+        for tag in __tag_parens(sentence):
             word, rule = tag
             add_node(word, rule)
-        for tag in tag_hyphens(sentence):
+        for tag in __tag_hyphens(sentence):
             word, rule = tag
             add_node(word, rule)
-        for tag in tag_commas(sentence):
+        for tag in __tag_commas(sentence):
             word, rule = tag
             add_node(word, rule)
     # pprint(res)
     # print("TAGGING LONG PPS")
     # Rule 8
     if "R8" in combination_array:
-        res = find_long_PP(sentence, res)
+        res = __find_long_PP(sentence, res)
     # pprint(res)
     return res
 
 
-def color_ius(sentence, to_process, s_idx, combination_label=None):
+def __color_ius(sentence, to_process, s_idx, combination_label=None):
     '''
     This function colors each word in the sentence according to
     nodes found in the list to_process.

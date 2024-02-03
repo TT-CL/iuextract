@@ -23,8 +23,8 @@ def iu_pprint(sent, gold = False, opener="[",closer="]"):
     res = res[1:] #crop first closed bracket ] from the beginning of the string
     return res
 
-def init_comb(file):
-    rule_combinations = get_rule_combinations()
+def __init_comb(file):
+    rule_combinations = __get_rule_combinations()
 
     for sent in file:
         for word in sent:
@@ -32,7 +32,7 @@ def init_comb(file):
                 comb_label = "_".join(comb)
                 word._.iu_comb[comb_label] = -1
 
-def get_rule_combinations():
+def __get_rule_combinations():
     rule_combinations = []
     for i in range(len(available_rules)):
         rule_combinations.extend(combinations(available_rules, i+1))
@@ -47,3 +47,39 @@ def get_ius_text(sent):
         else:
             res_dict[tok._.iu_index].append(tok)
     return res_dict
+
+def gen_iu_collection(sentences, gold=False):
+    '''
+    This function extracts the labeled IUS from a document and keeps track of
+    discontinuous Idea Units
+    '''
+    ius = {}
+    disc_ius = set()
+    label = lambda x: x._.iu_index
+    # look at a different label for gold Ius
+    if gold is True:
+        label = lambda x: x._.gold_iu_index
+
+    prev_label = None
+    for sent in sentences:
+        for word in sent:
+            if prev_label is None:
+                # for the first word initialize the dict entry and temp var
+                prev_label = label(word)
+                ius[label(word)] = []
+            # if the label didn't change from the previous word I can assume
+            # that this label already has a dict entry
+            if label(word) is prev_label:
+                ius[label(word)].append(word)
+            # THE LABEL CHANGED!
+            # if we don't have the label in the dict then add it and move on
+            elif label(word) not in ius:
+                ius[label(word)] = []
+                ius[label(word)].append(word)
+                prev_label = label(word)
+            # the label is already in the dict. We have a discontinuous IU
+            else:
+                ius[label(word)].append(word)
+                disc_ius.add(label(word))
+                prev_label = label(word)
+    return ius, disc_ius

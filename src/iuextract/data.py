@@ -22,7 +22,7 @@ nlp = spacy.load("en_core_web_lg")
 # gen_parser = CoreNLPParser(url="http://localhost:9000")
 ACCEPTABLE_MODELS = ["spacy", "corenlp_dep", "corenlp_ps"]
 
-def clean_str(s):
+def __clean_str(s):
     ''' string cleanup function '''
     #remove double spaces and newlines/tabs
     space_undoubler = lambda s : re.sub(r'\s\s*',' ', s)
@@ -58,7 +58,7 @@ def clean_str(s):
     return res
 
 
-def read_file(filename):
+def __read_file(filename):
     ''' Simple file reader. Output is list of sentences '''
     # read file from disk
     lines = []
@@ -66,7 +66,7 @@ def read_file(filename):
         # Tokenize sentences
         for row in file.readlines():
             # Skip empty lines and start lines
-            cleaned_row = clean_str(row)
+            cleaned_row = __clean_str(row)
             if cleaned_row != "" and cleaned_row != "start":
                 lines.append(cleaned_row)
     joined_lines = " ".join(lines)
@@ -74,7 +74,7 @@ def read_file(filename):
     return sents
 
 
-def read_buffer(fileBuffer):
+def __read_buffer(fileBuffer):
     ''' Simple buffer reader. Output is a list of sentences '''
     # read file from disk
     lines = []
@@ -83,7 +83,7 @@ def read_buffer(fileBuffer):
     # Tokenize sentences
     for row in decodedString.splitlines():
         # Skip empty lines and start lines
-        cleaned_row = clean_str(row)
+        cleaned_row = __clean_str(row)
         if cleaned_row != "" and cleaned_row != "start":
             lines.append(cleaned_row)
     fileBuffer.close()
@@ -92,7 +92,7 @@ def read_buffer(fileBuffer):
     return sents
 
 
-def read_filter(file):
+def __read_filter(file):
     ''' Simple reader for files containing filters '''
     # read file from disk
     lines = []
@@ -102,7 +102,7 @@ def read_filter(file):
             # Tokenize sentences
             for row in f.readlines():
                 # Skip empty lines and start lines
-                cleaned_row = clean_str(row)
+                cleaned_row = __clean_str(row)
                 if cleaned_row != "" and cleaned_row != "start":
                     lines.append(cleaned_row.lower())
     else:
@@ -110,13 +110,13 @@ def read_filter(file):
         s = file.decode("utf-8")
         for row in s.split("\n"):
             # Skip empty lines and start lines
-            cleaned_row = clean_str(row)
+            cleaned_row = __clean_str(row)
             if cleaned_row != "" and cleaned_row != "start":
                 lines.append(cleaned_row.lower())
     return lines
 
 
-def parse_file(sents, input_models=["spacy"]):
+def __parse_file(sents, input_models=["spacy"]):
     '''
     File parser
     Accepted models:
@@ -158,10 +158,10 @@ def import_file(f, models=["spacy"]):
     '''
     raws = None
     if isinstance(f, str):
-        raws = read_file(f)
+        raws = __read_file(f)
     else:
-        raws = read_buffer(f)
-    file = parse_file(raws, models)
+        raws = __read_buffer(f)
+    file = __parse_file(raws, models)
     return file
 
 
@@ -204,44 +204,6 @@ def import_all_files(filenames, models=None):
             print("{} not found. Skipping...".format(filename))
     return files
 
-
-def gen_iu_collection(sentences, gold=False):
-    '''
-    This function extracts the labeled IUS from a document and keeps track of
-    discontinuous Idea Units
-    '''
-    ius = {}
-    disc_ius = set()
-    label = lambda x: x._.iu_index
-    # look at a different label for gold Ius
-    if gold is True:
-        label = lambda x: x._.gold_iu_index
-
-    prev_label = None
-    for sent in sentences:
-        for word in sent:
-            if prev_label is None:
-                # for the first word initialize the dict entry and temp var
-                prev_label = label(word)
-                ius[label(word)] = []
-            # if the label didn't change from the previous word I can assume
-            # that this label already has a dict entry
-            if label(word) is prev_label:
-                ius[label(word)].append(word)
-            # THE LABEL CHANGED!
-            # if we don't have the label in the dict then add it and move on
-            elif label(word) not in ius:
-                ius[label(word)] = []
-                ius[label(word)].append(word)
-                prev_label = label(word)
-            # the label is already in the dict. We have a discontinuous IU
-            else:
-                ius[label(word)].append(word)
-                disc_ius.add(label(word))
-                prev_label = label(word)
-    return ius, disc_ius
-
-
 def export_csv(table, filename):
     with open(filename, 'w') as writerFile:
         writer = csv.writer(writerFile, dialect="unix")
@@ -255,16 +217,7 @@ def export_labeled_ius(text, filename):
         file.write(raw)
     return None
 
-def export_labeled_json(text, filename, doc_name):
-
-    doc_type = "Source text"
-    if doc_name != "source":
-        doc_type = "Summary text"
-    data = prepare_json(text, doc_name, doc_type)
-    with open(filename, 'w') as outputfile:
-        json.dump(data, outputfile)
-
-def prepare_json(text, doc_name, doc_type):
+def __prepare_json(text, doc_name, doc_type):
     data = {}
     data['doc_name'] = doc_name
     data['doc_type'] = doc_type
@@ -308,10 +261,10 @@ def prepare_json(text, doc_name, doc_type):
     return data
 
 
-def prepare_man_seg_json(text):
+def __prepare_man_seg_json(text):
     seg = text
     if not isinstance(text, Doc):
-        seg = nlp(clean_str(seg))
+        seg = nlp(__clean_str(seg))
 
     word_index = 0
     sent_data = {}
@@ -329,7 +282,7 @@ def prepare_man_seg_json(text):
     return sent_data
 
 
-def prepare_man_segs_json(segs, doc_name, doc_type):
+def __prepare_man_segs_json(segs, doc_name, doc_type):
     data = {}
     data['doc_name'] = doc_name
     data['doc_type'] = doc_type
@@ -340,7 +293,7 @@ def prepare_man_segs_json(segs, doc_name, doc_type):
 
     for seg in segs:
         if not isinstance(seg, Doc):
-            seg = nlp(clean_str(seg))
+            seg = nlp(__clean_str(seg))
         sent_data = {}
         sent_data['words'] = []
         for token in seg:
@@ -361,26 +314,25 @@ def prepare_man_segs_json(segs, doc_name, doc_type):
             word['disc'] = False
     return data
 
-
 def export_labeled_json(text, filename, doc_name):
+
     doc_type = "Source text"
-    data = {}
     if doc_name != "source":
-        data['doc_type'] = "Summary text"
-    data = prepare_json(text, doc_name, doc_type)
+        doc_type = "Summary text"
+    data = __prepare_json(text, doc_name, doc_type)
     with open(filename, 'w') as outputfile:
         json.dump(data, outputfile)
 
 
 ### This function assignes IU labels to the sents read by data.py
-def reat_manual_annotation(filename):
-
+#UNTESTED
+def __read_manual_annotation(filename):
     raws = None
     if isinstance(filename, str):
-        raws = read_file(filename)
+        raws = __read_file(filename)
     else:
-        raws = read_buffer(filename)
-    file = parse_file(raws, ['spacy'])
+        raws = __read_buffer(filename)
+    file = __parse_file(raws, ['spacy'])
 
     
     gold_iu_index = 0 #gold iu index

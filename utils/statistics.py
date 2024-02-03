@@ -3,7 +3,7 @@ from sklearn.metrics import precision_recall_fscore_support
 from nltk.metrics import pk, windowdiff
 from nltk.metrics.scores import accuracy
 import krippendorff
-from src.iuextract.data import gen_iu_collection
+from src.iuextract.utils import gen_iu_collection
 from pprint import pprint
 from numpy import sum as np_sum
 from numpy import average as np_avg

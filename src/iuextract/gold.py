@@ -8,7 +8,7 @@
 # This is because I want dependency trees to be evaluated on full sentences and
 # not single Idea Units.
 
-from src.iuextract.data import import_file, clean_str
+from src.iuextract.data import import_file, __clean_str
 import spacy
 from spacy.tokens import Token
 nlp = spacy.load("en_core_web_lg")
@@ -19,7 +19,7 @@ Token.set_extension("gold_iu_index", default=-1, force=True)
 
 # functions
 ###this function splits the initial manual index from the discontinuous IUs ###
-def split_index_iu(sent):
+def __split_index_iu(sent):
     match = re.match("(\d+)\|(.*)",sent)
     if match is not None:
         #print(match[1],match[2])
@@ -34,10 +34,10 @@ def import_gold(filename):
     with open(filename) as goldFile:
         reader = goldFile.readlines()
         for row in reader:
-            cleaned_row = clean_str(row)
+            cleaned_row = __clean_str(row)
             ## skipping empty lines
             if cleaned_row != "" and cleaned_row != "start":
-                disc_index, raw_iu = split_index_iu(cleaned_row)
+                disc_index, raw_iu = __split_index_iu(cleaned_row)
                 res.append([disc_index, nlp(raw_iu.strip())])
     return res
 
