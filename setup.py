@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="iuextract",
-    version="0.0.6",
+    version="0.0.7",
     author="Gecchele Marcello",
     author_email="git@gecchele.dev",
     description="Extract Idea Units from strings and files",
