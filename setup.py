@@ -26,10 +26,6 @@ setuptools.setup(
     include_package_data=True,
     python_requires=">=3.8",
     install_requires = [
-        'krippendorff>=0.5.2',
-        'nltk>=3.0.0',
-        'numpy>=1.0.0',
-        'scikit_learn>=1.0.0',
         'setuptools',
         'spacy>=3.0.0',
     ]

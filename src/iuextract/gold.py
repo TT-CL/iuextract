@@ -8,13 +8,12 @@
 # This is because I want dependency trees to be evaluated on full sentences and
 # not single Idea Units.
 
-#import nltk
 from src.iuextract.data import import_file, clean_str
 import spacy
 from spacy.tokens import Token
 nlp = spacy.load("en_core_web_lg")
 import re
-from src.iuextract.utils.utils import iu_pprint
+from src.iuextract.utils import iu_pprint
 # Spacy Token Extension
 Token.set_extension("gold_iu_index", default=-1, force=True)
 

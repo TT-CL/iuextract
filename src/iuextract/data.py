@@ -12,7 +12,7 @@ import re
 import unicodedata as ud
 import spacy
 from spacy.tokens import Doc, Token
-from .utils.utils import iu_pprint
+from .utils import iu_pprint
 # Spacy Token Extension
 Token.set_extension("iu_index", default=-1, force=True)
 
