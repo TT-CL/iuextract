@@ -4,8 +4,53 @@ Some functions include IU printer and a converter to extract IU collections from
 '''
 
 from itertools import combinations
+from spacy.tokens import Doc
+import re
+import unicodedata as ud
 
 available_rules = ["R1", "R2", "R3", "R5", "R6", "R8", "R10"]
+
+def clean_str(s):
+    ''' 
+    String cleanup function
+    Removes double-spaces, makes apostrophe consistent and removes emojis
+
+    :param s: (str) the string to clean up
+    :return: (str) the cleaned up string
+    '''
+    #remove double spaces and newlines/tabs
+    space_undoubler = lambda s : re.sub(r'\s\s*',' ', s)
+
+    res = s
+    res = res.replace("\s\\t\s", " ")
+    res = res.replace("\s\\n\s", " ")
+    res = res.replace("\s\\r\s", " ")
+    res = res.replace("\s\\f\s", " ")
+    res = res.replace("’", "'")
+    res = res.replace("“", "\"")
+    res = res.replace("”", "\"")
+    res = res.replace("``", "\"")
+    res = res.replace("''", "\"")
+    res = space_undoubler(res)
+    #res = re.sub("\s+", " ", res) # replace multiple spaces with a single one
+    # ensure that each open parens has at most one whitespace before
+    res = re.sub("\s*\\(", " (", res)
+    # ensure that each close parens has at most one whitespace afterwards
+    res = re.sub("\\)\s*", ") ", res)
+    #uncomment to ensure compatibility with segbot
+    '''
+    res = re.sub("\s*\\.", " .", res) 
+    res = re.sub("\\.\s*", ". ", res)
+    '''
+
+    #Remove weird unicode chars (emojis)
+    res = ''.join([c for c in res if ud.category(c)[0] != 'C'])
+    # undouble spaces again
+    res = space_undoubler(res)
+    #remove trailing spaces
+    res = res.strip()
+    return res
+
 def iu2str(sent, gold = False, index_sep="|", opener="[",closer="]"):
     '''
     This function converts spacy sentences into a string representation of the
@@ -64,15 +109,18 @@ def get_ius_text(sent):
 
 '''
 
-def gen_iu_collection(sentences, gold=False):
+def gen_iu_collection(doc, gold=False):
     '''
-    This function converts a or a list of spacy Spans into a dictionary of
+    This function converts a Doc or a list of spacy Spans into a dictionary of
     labeled IUs along with a set of keys for discontinuous units.
-    :param sentences: (List[Span] | Doc) the list of sentences to convert
+    :param doc: (List[Span] | Doc) the list of sentences to convert
     :param gold: (bool) whether I want to convert gold units or not
     :return ius, disc_ius: a dictionary of ius and a set of keys refering to
     discontinuous units
     '''
+    sentences = doc
+    if isinstance(doc, Doc):
+        sentences = doc.sents
     ius = {}
     disc_ius = set()
     label = lambda x: x._.iu_index
@@ -103,3 +151,38 @@ def gen_iu_collection(sentences, gold=False):
                 disc_ius.add(label(word))
                 prev_label = label(word)
     return ius, disc_ius
+
+def coll2strings(iu_collection):
+    '''
+    Function to turn a iu_collection tuple to a simple list of strings
+
+    :param iu_collection: a tuple where 1. is a dictionary of ius and 2. is a set of keys refering to discontinuous units. The second tuple elem is optional (only the first one is required)
+    :return: (str) A string representation of the segmented IUs. Each row has a single unit
+    '''
+    coll, disc = iu_collection
+    res = []
+    for key, value in coll.items():
+        s = [str(tok) for tok in value]
+        s = ' '.join(s)
+        s = clean_str(s)
+        s = re.sub(r"\s+\,", ",", s)
+        s = re.sub(r"\s+\:", ":", s)
+        s = re.sub(r"\s+\;", ";", s)
+        s = re.sub(r"\s+\.", ".", s)
+        s = re.sub(r"\(\s+", "(", s)
+        s = re.sub(r"\s+\)", ")", s)
+        s = re.sub(r"\[\s+", "[", s)
+        s = re.sub(r"\s+\]", "]", s)
+        s = re.sub(r"\{\s+", "{", s)
+        s = re.sub(r"\s+\}", "}", s)
+        res.append(s)
+    return res
+
+def get_iu_str_list(doc, gold = False):
+    '''
+    This function converts a Doc or a list of spacy Spans into a string representation of the IUs. Each row will contain an IU. Discontinuous IUs are joined together.
+    :param doc: (List[Span] | Doc) the list of sentences to convert
+    :param gold: (bool) whether I want to convert gold units or not
+    :return: (str) a string where each row shows one IU
+    '''
+    return coll2strings(gen_iu_collection(doc, gold))

@@ -10,11 +10,9 @@ IU segmentation is handled by the extract module.
 
 import csv
 import json
-import re
-import unicodedata as ud
 import spacy
 from spacy.tokens import Doc, Token
-from .utils import iu2str
+from .utils import iu2str, clean_str
 # Spacy Token Extension
 Token.set_extension("iu_index", default=-1, force=True)
 
@@ -23,47 +21,6 @@ nlp = spacy.load("en_core_web_lg")
 # dep_parser = CoreNLPDependencyParser(url="http://localhost:9000")
 # gen_parser = CoreNLPParser(url="http://localhost:9000")
 ACCEPTABLE_MODELS = ["spacy", "corenlp_dep", "corenlp_ps"]
-
-def clean_str(s):
-    ''' 
-    String cleanup function
-    Removes double-spaces, makes apostrophe consistent and removes emojis
-
-    :param s: (str) the string to clean up
-    :return: (str) the cleaned up string
-    '''
-    #remove double spaces and newlines/tabs
-    space_undoubler = lambda s : re.sub(r'\s\s*',' ', s)
-
-    res = s
-    res = res.replace("\s\\t\s", " ")
-    res = res.replace("\s\\n\s", " ")
-    res = res.replace("\s\\r\s", " ")
-    res = res.replace("\s\\f\s", " ")
-    res = res.replace("’", "'")
-    res = res.replace("“", "\"")
-    res = res.replace("”", "\"")
-    res = res.replace("``", "\"")
-    res = res.replace("''", "\"")
-    res = space_undoubler(res)
-    #res = re.sub("\s+", " ", res) # replace multiple spaces with a single one
-    # ensure that each open parens has at most one whitespace before
-    res = re.sub("\s*\\(", " (", res)
-    # ensure that each close parens has at most one whitespace afterwards
-    res = re.sub("\\)\s*", ") ", res)
-    #uncomment to ensure compatibility with segbot
-    '''
-    res = re.sub("\s*\\.", " .", res) 
-    res = re.sub("\\.\s*", ". ", res)
-    '''
-
-    #Remove weird unicode chars (emojis)
-    res = ''.join([c for c in res if ud.category(c)[0] != 'C'])
-    # undouble spaces again
-    res = space_undoubler(res)
-    #remove trailing spaces
-    res = res.strip()
-    return res
 
 
 def __read_file(filename):

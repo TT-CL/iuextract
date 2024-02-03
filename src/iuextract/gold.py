@@ -10,12 +10,11 @@ This is because I want dependency trees to be evaluated on full sentences and
 not single Idea Units.
 '''
 
-from src.iuextract.data import import_file, clean_str
 import spacy
 from spacy.tokens import Token
 nlp = spacy.load("en_core_web_lg")
 import re
-from src.iuextract.utils import iu2str
+from src.iuextract.utils import iu2str, clean_str
 # Spacy Token Extension
 Token.set_extension("gold_iu_index", default=-1, force=True)
 
