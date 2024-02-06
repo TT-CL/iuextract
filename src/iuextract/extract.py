@@ -466,11 +466,11 @@ def __inline_fixes(sent):
             if i > 0:
                 word._.iu_index = sent[i-1]._.iu_index
         elif word.text == "(":
-            if i < len(sent):  # OOB check
+            if (i+1) < len(sent):  # OOB check
                 word._.iu_index = sent[i+1]._.iu_index
         # conjunctions go with their follwing word
         if word.pos_ == "CCONJ":
-            if i < len(sent):  # OOB check
+            if (i+1) < len(sent):  # OOB check
                 word._.iu_index = sent[i+1]._.iu_index
         # JOIN FIX
         # we attach meaningless ius (stopwords) to the left.
