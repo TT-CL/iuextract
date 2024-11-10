@@ -34,9 +34,9 @@ def clean_str(s):
     res = space_undoubler(res)
     #res = re.sub("\s+", " ", res) # replace multiple spaces with a single one
     # ensure that each open parens has at most one whitespace before
-    res = re.sub("\s*\\(", " (", res)
+    res = re.sub("\s+\\(", " (", res)
     # ensure that each close parens has at most one whitespace afterwards
-    res = re.sub("\\)\s*", ") ", res)
+    res = re.sub("\\)\s+", ") ", res)
     #uncomment to ensure compatibility with segbot
     '''
     res = re.sub("\s*\\.", " .", res) 
@@ -62,7 +62,7 @@ def iu2str(sent, gold = False, index_sep="|", opener="[",closer="]"):
     :param closer: (str) the IU string closer (default: "]")
     :return: a string representation of the IUs in a sentence
     '''
-    texts = [token.text for token in sent]
+    texts = [token.text_with_ws for token in sent]
     indexes = None
     if gold is False:
         indexes = [token._.iu_index for token in sent]
@@ -76,7 +76,7 @@ def iu2str(sent, gold = False, index_sep="|", opener="[",closer="]"):
             #print(indexes[i], cur_idx)
             cur_idx = indexes[i]
             res += closer+opener+"{}".format(cur_idx)+index_sep
-        res += "{} ".format(texts[i])
+        res += texts[i]
     res += closer     #add final closed bracket ] at the end of the string
     res = res[1:] #crop first closed bracket ] from the beginning of the string
     return res
