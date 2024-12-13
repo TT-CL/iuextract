@@ -12,7 +12,7 @@ not single Idea Units.
 
 from spacy.tokens import Token
 import re
-from src.iuextract.utils import iu2str, clean_str
+from .iu_utils import iu2str, clean_str
 # Spacy Token Extension
 Token.set_extension("gold_iu_index", default=-1, force=True)
 

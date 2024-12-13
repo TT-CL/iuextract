@@ -11,8 +11,9 @@ IU segmentation is handled by the extract module.
 import csv
 import json
 from spacy.tokens import Doc, Token
-from .utils import iu2str, clean_str
+from .iu_utils import iu2str, clean_str
 # Spacy Token Extension
+import os
 Token.set_extension("iu_index", default=-1, force=True)
 
 #from pathlib import Path
@@ -39,7 +40,7 @@ def __read_file(filename, nlp):
 
 def __read_buffer(fileBuffer, nlp):
     ''' Simple buffer reader. Output is a list of sentences '''
-    # read file from disk
+    # read file from buffer
     lines = []
     byteString = fileBuffer.read()
     decodedString = byteString.decode('utf-8')
@@ -124,11 +125,16 @@ def import_file(f, nlp, models=["spacy"]):
     '''
     raws = None
     if isinstance(f, str):
-        raws = __read_file(f, nlp)
+        if os.path.exists(f):
+            raws = __read_file(f, nlp)
+        else:
+            raws = f
     else:
         raws = __read_buffer(f, nlp)
-    file = __parse_file(raws, nlp, models)
-    return file
+    lines = raws.splitlines()
+    spacy_docs = [nlp(line) for line in lines]
+    res = Doc.from_docs(spacy_docs)
+    return res
 
 
 def retrieve_filenames(namefile, folder):
@@ -317,66 +323,3 @@ def export_labeled_json(text, filename, doc_name):
     data = __prepare_json(text, doc_name, doc_type)
     with open(filename, 'w') as outputfile:
         json.dump(data, outputfile)
-
-
-### This function assignes IU labels to the sents read by data.py
-#UNTESTED
-def __read_manual_annotation(filename, nlp):
-    raws = None
-    if isinstance(filename, str):
-        raws = __read_file(filename, nlp)
-    else:
-        raws = __read_buffer(filename, nlp)
-    file = __parse_file(raws, ['spacy'])
-
-    
-    gold_iu_index = 0 #gold iu index
-    disc_dict = {} #dictionary for disc ius indexes
-    sent_idx = 0 #raw sents index
-    token_idx = 0 #raw token index
-
-    ## DEBUG:
-    #set with the sent indexes of Disc Ius
-    disc_ius_set = set()
-
-    for disc_index, iu in ius:
-        iu_index = None
-        if disc_index is not None:
-            #we are examining a discontinuous IU
-            if disc_index not in disc_dict.keys():
-                #if we don't have our index in the dictionary
-                disc_dict[disc_index] = gold_iu_index
-                #this increases the IU counter only the first time we find
-                #a discontinuous IU
-                gold_iu_index +=1
-            iu_index = disc_dict[disc_index]
-        else:
-            #If this IU is not a discontinuous IU then we can avoid the
-            #dictionary lookup.
-            iu_index = gold_iu_index
-            gold_iu_index +=1
-        # iterate for each word in the gold idea unit
-        for word in iu:
-            # get the token row from the raw sents data
-            token = sents[sent_idx][token_idx]
-            if disc_index is not None:
-                disc_ius_set.add(sent_idx)
-            #check if the two texts are the same
-            if word.text == token.text:
-                #assign the IU index
-                token._.gold_iu_index = iu_index
-                #increase indexes for the exploration of the raw data matrix
-                token_idx += 1
-                if token_idx == len(sents[sent_idx]):
-                    sent_idx += 1
-                    token_idx = 0
-            else:
-                print("***SOMETHING REAL BAD HAPPENED***")
-                print("Could not match a word from the raw sentences with the respective Idea Unit.")
-                print("word: {} iu: {}".format(word.text,token.text))
-                print("token.i: {} token.doc: {}".format(word.i, word.doc))
-                print("sent_idx: {} token_idx: {}".format(sent_idx,token_idx))
-                print("Please remain calm and call an adult")
-                print("-----------")
-                raise(Exception("gold"))
-    return sents, disc_ius_set
