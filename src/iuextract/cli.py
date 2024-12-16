@@ -41,3 +41,4 @@ def main():
     if not raw_output.endswith('\n'):
         raw_output = f'{raw_output}\n'
     outputFile.write(raw_output)
+    return 0
