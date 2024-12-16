@@ -11,6 +11,7 @@ To install the package with the command line tool [install pipx](https://pipx.py
 ```
 pipx install iuextract --python 3.9
 ```
+**Note:** on first run, the program will download the Spacy model `en_core_web_lg`. This could take some time. A custom Spacy model can be selected when importing the module into your python projects.
 
 If you only wish to use the package in your python projects you can install without executable via
 ```
@@ -18,7 +19,7 @@ pip install iuextract
 ```
 
 ## Command Line Interface (CLI) Usage
-Once installed via `pipx`, you can run
+Once installed via `pipx`, you can run iuextract via
 ```
 iuextract -i input_file.txt 
 ```

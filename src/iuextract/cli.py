@@ -34,7 +34,9 @@ def main():
     suffix = args.after
     separator = args.separator
 
-    spacy.cli.download("en_core_web_lg")
+    if not spacy.util.is_package("en_core_web_lg"):
+        print("Spacy model not found. Downloading...")
+        spacy.cli.download("en_core_web_lg")
     nlp = spacy.load("en_core_web_lg")
     parsed = import_file(raw_input, nlp=nlp)
     label_ius(parsed)
