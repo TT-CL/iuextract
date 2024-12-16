@@ -10,12 +10,20 @@ readme = {file = "README.md", content-type = "text/markdown"}
 license = {file = "LICENSE"}
 keywords = ["Idea Unit", "textual segmentation", "segmentation", "linguistics"]
 
+requires-python = '>=3.8'
+
 dependencies = [
   "spacy",
 ]
 authors = [
   {name = "Marcello Gecchele", email = "linked.uno@pm.me"},
 ]
+
+classifiers = [
+  'Programming Language :: Python :: 3',
+  'License :: OSI Approved :: MIT License',
+  'Operating System :: OS Independent'
+  ]
 
 [project.scripts]
 iuextract = "iuextract:__main__"
