@@ -1,3 +1,27 @@
 [build-system]
 requires = ["setuptools>=42"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "IUExtract"
+version = "1.0.0"
+description = "Rule-based Idea Unit segmentation algorithm for the English language."
+readme = {file = "README.md", content-type = "text/markdown"}
+license = {file = "LICENSE"}
+keywords = ["Idea Unit", "textual segmentation", "segmentation", "linguistics"]
+
+dependencies = [
+  "spacy",
+]
+authors = [
+  {name = "Marcello Gecchele", email = "linked.uno@pm.me"},
+]
+
+[project.scripts]
+iuextract = "iuextract:__main__"
+
+[project.urls]
+Homepage = "https://tt-cl.github.io/iu-resources/"
+Documentation = "https://github.com/TT-CL/iuextract"
+Repository = "https://github.com/TT-CL/iuextract.git"
+Issues = "https://github.com/TT-CL/iuextract/issues"

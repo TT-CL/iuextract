@@ -8,8 +8,8 @@ import spacy
 
 
 parser = argparse.ArgumentParser(prog='iuextract', description='Segment a raw text into Idea Units')
-parser.add_argument('-i', '--input', help='the {i}nput text. If it is not provided, the program will read the positional arguments input as a text. \nAccepted filetype: .txt', type=argparse.FileType('r'), required=False, default=None)
-parser.add_argument('-o', '--output', help="the {o}utput file where to store the ius. By default the segmentation will be shown on the terminal and will not be stored on disk. \nAccepted filetype: .txt", nargs='?', type=argparse.FileType('w'), default=sys.stdout)
+parser.add_argument('-i', '--input', help='the {i}nput text. If it is not provided, the program will read the positional arguments input as a text.', type=argparse.FileType('r'), required=False, default=None)
+parser.add_argument('-o', '--output', help="the {o}utput file where to store the ius. By default the segmentation will be shown on the terminal and will not be stored on disk.", nargs='?', type=argparse.FileType('w'), default=sys.stdout)
 parser.add_argument('pos_input', help="the input text to analyze if no filename is provided.", nargs='*')
 #parser.add_argument('-o', '--output', help="the {o}utput file where to store the ius. By default the segmentation will be shown on the terminal and will not be stored on disk. \nAccepted filetype: .txt", required=False, default=None)
 parser.add_argument('-b', '--before', help="a sequence of text to place {b}efore each IU. By default, no prefix is set.", required=False, default="")
