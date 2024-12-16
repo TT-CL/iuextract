@@ -7,7 +7,7 @@ from .extract import label_ius
 from .iu_utils import iuDoc2str
 import spacy
 
-def main():
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='iuextract', description='Segment a raw text into Idea Units')
     parser.add_argument('-i', '--input', help='the {i}nput text. If it is not provided, the program will read the positional arguments input as a text.', type=argparse.FileType('r'), required=False, default=None)
     parser.add_argument('-o', '--output', help="the {o}utput file where to store the ius. By default the segmentation will be shown on the terminal and will not be stored on disk.", nargs='?', type=argparse.FileType('w'), default=sys.stdout)
@@ -41,7 +41,4 @@ def main():
     if not raw_output.endswith('\n'):
         raw_output = f'{raw_output}\n'
     outputFile.write(raw_output)
-    return os.EX_OK
-
-if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(os.EX_OK)
