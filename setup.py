@@ -28,5 +28,6 @@ setuptools.setup(
     install_requires = [
         'setuptools',
         'spacy>=3.0.0',
+        "en_core_web_lg @ https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-3.8.0/en_core_web_lg-3.8.0-py3",
     ]
 )
