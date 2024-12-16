@@ -5,10 +5,10 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="iuextract",
-    version="0.0.10",
+    version="1.0.3",
     author="Gecchele Marcello",
     author_email="git@gecchele.dev",
-    description="Extract Idea Units from strings and files",
+    description="Rule-based Idea Unit segmentation algorithm for the English language.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/TT-CL/iuextract",

@@ -8,7 +8,7 @@ packages = ["iuextract"]
 
 [project]
 name = "IUExtract"
-version = "1.0.2"
+version = "1.0.3"
 description = "Rule-based Idea Unit segmentation algorithm for the English language."
 readme = {file = "README.md", content-type = "text/markdown"}
 license = {file = "LICENSE"}
@@ -17,7 +17,7 @@ keywords = ["Idea Unit", "textual segmentation", "segmentation", "linguistics"]
 requires-python = '>=3.8'
 
 dependencies = [
-  "spacy",
+  "spacy>=3.0.0",
 ]
 authors = [
   {name = "Marcello Gecchele", email = "linked.uno@pm.me"},
