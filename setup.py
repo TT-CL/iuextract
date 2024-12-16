@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="iuextract",
-    version="1.0.3",
+    version="1.0.4",
     author="Gecchele Marcello",
     author_email="git@gecchele.dev",
     description="Rule-based Idea Unit segmentation algorithm for the English language.",
