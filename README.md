@@ -2,6 +2,11 @@
 Rule-based Idea Unit segmentation algorithm for the English language.
 
 ## Installation
+First of all, you need to install the dependencies:
+```
+pip install spacy
+python -m spacy download en_core_web_lg
+```
 To install the package with the command line tool [install pipx](https://pipx.pypa.io/latest/installation/) and run the following command:
 ```
 pipx install iuextract
