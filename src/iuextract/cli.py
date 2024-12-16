@@ -34,6 +34,7 @@ def main():
     suffix = args.after
     separator = args.separator
 
+    spacy.cli.download("en_core_web_lg")
     nlp = spacy.load("en_core_web_lg")
     parsed = import_file(raw_input, nlp=nlp)
     label_ius(parsed)
