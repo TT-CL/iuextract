@@ -1,6 +1,10 @@
 [build-system]
-requires = ["setuptools>=42"]
+requires = ["setuptools>=75.6"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["iuextract"]
 
 [project]
 name = "IUExtract"
@@ -26,7 +30,7 @@ classifiers = [
   ]
 
 [project.scripts]
-iuextract = "iuextract:__main__"
+iuextract = "iuextract.__main__:main"
 
 [project.urls]
 Homepage = "https://tt-cl.github.io/iu-resources/"

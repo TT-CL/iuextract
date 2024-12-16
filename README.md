@@ -9,7 +9,7 @@ python -m spacy download en_core_web_lg
 ```
 To install the package with the command line tool [install pipx](https://pipx.pypa.io/latest/installation/) and run the following command:
 ```
-pipx install iuextract
+pipx install iuextract --python 3.9
 ```
 
 If you only wish to use the package in your python projects you can install without executable via
