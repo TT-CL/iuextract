@@ -8,7 +8,7 @@ packages = ["iuextract"]
 
 [project]
 name = "IUExtract"
-version = "1.0.7"
+version = "1.0.8"
 description = "Rule-based Idea Unit segmentation algorithm for the English language."
 readme = {file = "README.md", content-type = "text/markdown"}
 license = {file = "LICENSE"}

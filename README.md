@@ -86,5 +86,14 @@ iuextract -h
 Simple text segmentation:
 ```
 from iuextract.extract import segment_ius
-segment_ius(text, mode='str')
+
+text = "My dog, Chippy, just won its first grooming competition."
+print(segment_ius(text, mode='str'))
 ```
+```
+D1|My dog, 
+2|Chippy, 
+D1|just won its first grooming competition.
+```
+
+For more examples check `example.ipynb`
