@@ -23,7 +23,7 @@ Token.set_extension("iu_comb", default={}, force=True)
 
 available_rules = ["R1", "R2", "R3", "R5", "R6", "R8", "R10"]
 
-def segment_ius(text, mode = "obj", rule_list=None, spacy_model = 'en_core_web_lg'):
+def segment_ius(text, mode = "obj", rule_list=None, spacy_model = None):
     '''
     Function to segment a text into a list of IUs
     
@@ -34,8 +34,9 @@ def segment_ius(text, mode = "obj", rule_list=None, spacy_model = 'en_core_web_l
 
     :return: either an IU collection or a str representation of an IU collection
     '''
-    nlp = spacy.load(spacy_model)
-    parsed = nlp(text)
+    if spacy_model is None:
+        spacy_model = spacy.load('en_core_web_lg')
+    parsed = spacy_model(text)
     label_ius(parsed, rule_list)
     res = None
     if mode == "obj":

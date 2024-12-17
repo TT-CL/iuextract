@@ -206,7 +206,8 @@ def __gen_sequential_iu_map(doc, gold=False):
             # the label is already in the dict. We have a discontinuous IU
             else:
                 prev_idx = label(word)
-                iu_idx_map[prev_idx] = f"D{iu_idx_map[prev_idx]}"
+                if not str(iu_idx_map[prev_idx]).startswith('D'):
+                    iu_idx_map[prev_idx] = f"D{iu_idx_map[prev_idx]}"
     return iu_idx_map
 
 def coll2strings(iu_collection):
