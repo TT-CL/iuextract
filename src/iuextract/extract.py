@@ -9,7 +9,7 @@ In here you will find functions to label Spacy Docs with IU information
 from collections import deque
 # from pprint import pprint
 from .data import __read_filter
-from .iu_utils import gen_iu_collection, get_ius_from_doc
+from .iu_utils import gen_iu_collection, doc2iu_str
 import spacy
 from spacy.tokens import Token, Doc
 import pkgutil
@@ -42,7 +42,7 @@ def segment_ius(text, mode = "obj", rule_list=None, spacy_model = None):
     if mode == "obj":
         res = gen_iu_collection(parsed)
     elif mode == "str":
-        res = get_ius_from_doc(parsed)
+        res = doc2iu_str(parsed)
     return res
 
 def label_ius(file, rule_list=None):

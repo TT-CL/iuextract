@@ -4,7 +4,7 @@ import os
 import warnings
 from .data import import_file
 from .extract import label_ius
-from .iu_utils import iuDoc2str
+from .iu_utils import doc2iu_str
 import spacy
 
 def main():
@@ -40,7 +40,7 @@ def main():
     nlp = spacy.load("en_core_web_lg")
     parsed = import_file(raw_input, nlp=nlp)
     label_ius(parsed)
-    raw_output = iuDoc2str(parsed,gold=False, index_sep=separator, opener=prefix, closer=suffix)
+    raw_output = doc2iu_str(parsed,gold=False, index_sep=separator, opener=prefix, closer=suffix)
     if not raw_output.endswith('\n'):
         raw_output = f'{raw_output}\n'
     outputFile.write(raw_output)

@@ -81,7 +81,7 @@ def iu2str(sent, gold = False, index_sep="|", opener="",closer="\n"):
     res = res[1:] #crop first closed bracket ] from the beginning of the string
     return res
 
-def iuDoc2str(doc, gold = False, index_sep="|", opener="",closer="\n", verbose=False):
+def doc2iu_str(doc, gold = False, index_sep="|", opener="",closer="\n", verbose=False):
     converted_sents = [iu2str(sent, gold=gold, index_sep=index_sep, opener=opener, closer=closer).strip() for sent in doc.sents]
     res = '\n'.join(converted_sents)
     if not verbose:
@@ -236,7 +236,7 @@ def coll2strings(iu_collection):
         res.append(s)
     return res
 
-def get_ius_from_doc(doc, gold = False):
+def doc2iu_segs(doc, gold = False):
     '''
     This function converts a Doc or a list of spacy Spans into a string representation of the IUs. Each row will contain an IU. Discontinuous IUs are joined together.
     :param doc: (List[Span] | Doc) the list of sentences to convert
