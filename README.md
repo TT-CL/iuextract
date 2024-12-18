@@ -9,7 +9,7 @@ Will be segmented into the following Idea Units:
 ```
 D1|My dog,
 2|Chippy,
-D1|just
+D1|just won its first grooming competition.
 ```
 Each line denotes a segment. At the beginning of each line there is an Idea Unit index. Each Unit is assigned an index in sequential order. Discontinuous Units are prefixed by the character "D". Naturally, these indexes can be found on multiple lines and the complete Idea Unit can be obtained by joining the lines with the same index.
 ## Installation
