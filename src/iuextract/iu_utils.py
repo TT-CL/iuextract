@@ -90,7 +90,7 @@ def doc2iu_str(doc, gold = False, index_sep="|", opener="",closer="\n", verbose=
         temp_res = []
         for sent in res.splitlines():
             split = sent.partition(index_sep)
-            temp_res.append(f"{readable_idxs[split[0]]}{split[1]}{split[2]}")
+            temp_res.append(f"{readable_idxs[str(split[0])]}{split[1]}{split[2]}")
         res = '\n'.join(temp_res)
     return res
 
@@ -189,7 +189,7 @@ def __gen_sequential_iu_map(doc, gold=False):
             if prev_idx is None:
                 # for the first word initialize the dict entry and temp var
                 prev_idx = label(word)
-                iu_idx_map[prev_idx] = sequential_idx
+                iu_idx_map[str(prev_idx)] = str(sequential_idx)
                 sequential_idx +=1
                 iu_indexes.add(prev_idx)
             # if the label didn't change from the previous word I can assume
@@ -201,13 +201,13 @@ def __gen_sequential_iu_map(doc, gold=False):
             elif label(word) not in iu_indexes:
                 iu_indexes.add(label(word))
                 prev_idx = label(word)
-                iu_idx_map[prev_idx] = sequential_idx
+                iu_idx_map[str(prev_idx)] = str(sequential_idx)
                 sequential_idx +=1
             # the label is already in the dict. We have a discontinuous IU
             else:
                 prev_idx = label(word)
                 if not str(iu_idx_map[prev_idx]).startswith('D'):
-                    iu_idx_map[prev_idx] = f"D{iu_idx_map[prev_idx]}"
+                    iu_idx_map[str(prev_idx)] = f"D{iu_idx_map[prev_idx]}"
     return iu_idx_map
 
 def coll2strings(iu_collection):
