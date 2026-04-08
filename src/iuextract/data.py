@@ -10,7 +10,7 @@ IU segmentation is handled by the extract module.
 
 import csv
 import json
-from spacy.tokens import Doc, Token
+from spacy.tokens import Doc, Span, Token
 from .iu_utils import iu2str, clean_str
 # Spacy Token Extension
 import os
@@ -211,7 +211,7 @@ def export_labeled_ius(text, filename):
         file.write(raw)
     return None
 
-def __prepare_json(text, doc_name, doc_type):
+def prepare_json(text, doc_name, doc_type):
     data = {}
     data['doc_name'] = doc_name
     data['doc_type'] = doc_type
@@ -224,7 +224,24 @@ def __prepare_json(text, doc_name, doc_type):
     max_iu_index = 0
     cur_iu_index = 0
 
-    for sent in text:
+    textException = lambda obj: TypeError(f"Invalid text\n{obj}")
+    sents = None
+    if isinstance(text, Doc):
+        sents = list(text.sents)
+    elif isinstance(text, list):
+        if all(isinstance(el, Span) for el in text):
+            sents = text
+        elif all(isinstance(el, str) for el in text):
+            sents = [nlp(el) for el in text]
+        else:
+            raise textException(text)
+    elif isinstance(text, str):
+        sents = list(nlp(text).sents)
+    else:
+        raise textException(text)
+
+
+    for sent in sents:
         sent_data = {}
         sent_data['words'] = []
         for token in sent:
@@ -320,6 +337,6 @@ def export_labeled_json(text, filename, doc_name):
     doc_type = "Source text"
     if doc_name != "source":
         doc_type = "Summary text"
-    data = __prepare_json(text, doc_name, doc_type)
+    data = prepare_json(text, doc_name, doc_type)
     with open(filename, 'w') as outputfile:
         json.dump(data, outputfile)
